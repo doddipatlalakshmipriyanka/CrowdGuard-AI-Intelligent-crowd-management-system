@@ -691,7 +691,7 @@ def reverse_geocode(latitude, longitude):
         }
 
         headers = {
-            "User-Agent": "CrowdGuardAI/1.0 (crowd-management-app)"
+            "User-Agent": "CrowdGuardAI/1.0"
         }
 
         response = requests.get(
@@ -703,57 +703,51 @@ def reverse_geocode(latitude, longitude):
 
         print("Nominatim status:", response.status_code)
 
-        if response.status_code == 200:
-            data = response.json()
+        if response.status_code != 200:
+            return "Location name unavailable"
 
-            # First: use complete readable address
-            display_name = data.get("display_name")
+        data = response.json()
+        address = data.get("address", {})
 
-            if display_name:
-                return display_name
-
-            # Second: construct address manually
-            address = data.get("address", {})
-
-            parts = []
-
-            for key in [
-                "amenity",
-                "building",
-                "road",
-                "neighbourhood",
-                "suburb",
-                "village",
-                "town",
-                "city",
-                "municipality",
-                "district",
-                "state",
-                "postcode",
-                "country",
-            ]:
-                value = address.get(key)
-
-                if value and value not in parts:
-                    parts.append(value)
-
-            if parts:
-                return ", ".join(parts)
-
-        # If reverse geocoding fails, show coordinates
-        return (
-            f"GPS Coordinates: "
-            f"{float(latitude):.6f}, {float(longitude):.6f}"
+        # Get the most useful place name
+        place = (
+            address.get("village")
+            or address.get("town")
+            or address.get("city")
+            or address.get("municipality")
+            or address.get("suburb")
+            or address.get("neighbourhood")
         )
+
+        district = (
+            address.get("state_district")
+            or address.get("district")
+            or address.get("county")
+        )
+
+        state = address.get("state")
+
+        # Build readable location
+        parts = []
+
+        for value in [place, district, state]:
+            if value and value not in parts:
+                parts.append(value)
+
+        if parts:
+            return ", ".join(parts)
+
+        # Last fallback
+        display_name = data.get("display_name")
+
+        if display_name:
+            return display_name
+
+        return "Location name unavailable"
 
     except Exception as e:
         print("Reverse geocoding error:", type(e).__name__, str(e))
-
-        # Do not hide the location completely
-        return (
-            f"GPS Coordinates: "
-            f"{float(latitude):.6f}, {float(longitude):.6f}"
-        )
+        return "Location name unavailable"
 # ============================================================
 # CAMERA FRAME CALLBACK
 # ============================================================
