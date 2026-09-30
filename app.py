@@ -1,4 +1,7 @@
 import streamlit as st
+import base64
+import os
+
 
 # =========================================================
 # PAGE CONFIG
@@ -9,9 +12,14 @@ st.set_page_config(
     page_icon="👥",
     layout="wide"
 )
-import base64
+
+
+# =========================================================
+# BACKGROUND
+# =========================================================
 
 def set_background(image_path):
+
     with open(image_path, "rb") as image_file:
         encoded = base64.b64encode(
             image_file.read()
@@ -70,25 +78,37 @@ def set_background(image_path):
         """,
         unsafe_allow_html=True
     )
-    set_background("image/crowdguard_background.jpg")
+
+
+# Apply background
+background_path = "image/crowdguard_background.jpg"
+
+if os.path.exists(background_path):
+    set_background(background_path)
+
+
 # =========================================================
 # LOGO
 # =========================================================
 
-import os
-
 logo_path = os.path.join("image", "logo.jpeg")
 
 if os.path.exists(logo_path):
+
     col1, col2, col3 = st.columns([3, 2, 3])
 
     with col2:
+
         st.image(
             logo_path,
             width=600
         )
+
 else:
+
     st.warning("Logo image not found.")
+
+
 # =========================================================
 # SIDEBAR
 # =========================================================
@@ -96,7 +116,6 @@ else:
 with st.sidebar:
 
     st.title("🤖 Artificial Intelligence Careers for Women (AICW)")
-    
 
     st.title(" 🎓 Capstone Project")
 
@@ -205,6 +224,7 @@ if st.button(
     type="primary",
     use_container_width=True
 ):
+
     st.switch_page(
         "pages/1_Crowd_Management_Application.py"
     )
@@ -237,6 +257,388 @@ st.write(
     The system is designed to support crowd monitoring and
     early identification of potentially crowded situations.
     """
+)
+
+
+# =========================================================
+# NEW FEATURE
+# AUTOMATIC CROWD ANALYSIS
+# =========================================================
+
+st.header("🤖 Automatic Crowd Analysis")
+
+st.write(
+    """
+    CrowdGurd AI can use the monitored place and area to
+    automatically calculate a suitable HIGH crowd threshold.
+
+    Instead of requiring the user to manually enter a crowd
+    threshold, the application uses the monitored area and
+    a defined crowd-density limit.
+    """
+)
+
+auto_col1, auto_col2, auto_col3 = st.columns(3)
+
+with auto_col1:
+
+    st.info(
+        """
+        ### 📍 1. Identify Place
+
+        The monitoring area can be selected
+        according to the type of location.
+
+        Examples:
+
+        • Classroom  
+        • Laboratory  
+        • Corridor  
+        • Auditorium  
+        • Canteen  
+        • Outdoor Area
+        """
+    )
+
+with auto_col2:
+
+    st.info(
+        """
+        ### 📐 2. Determine Area
+
+        The monitored area is specified
+        in square meters.
+
+        Example:
+
+        **50 m² classroom**
+        """
+    )
+
+with auto_col3:
+
+    st.info(
+        """
+        ### 👥 3. Calculate Threshold
+
+        The system calculates the HIGH
+        crowd threshold automatically.
+
+        **Area × Density Limit**
+        """
+    )
+
+
+# =========================================================
+# AI MONITORING WORKFLOW
+# =========================================================
+
+st.header("🧠 AI Monitoring Workflow")
+
+workflow1, workflow2, workflow3, workflow4 = st.columns(4)
+
+with workflow1:
+
+    st.markdown(
+        """
+        ### 📷 Step 1
+
+        **Capture / Upload**
+
+        Capture a place image or upload
+        an image/video, or use the live
+        camera.
+        """
+    )
+
+with workflow2:
+
+    st.markdown(
+        """
+        ### 🤖 Step 2
+
+        **AI Detection**
+
+        YOLO detects people in the
+        monitored scene.
+        """
+    )
+
+with workflow3:
+
+    st.markdown(
+        """
+        ### 👥 Step 3
+
+        **People Counting**
+
+        The detected people are counted
+        and compared with the calculated
+        crowd threshold.
+        """
+    )
+
+with workflow4:
+
+    st.markdown(
+        """
+        ### 🚨 Step 4
+
+        **Risk Analysis**
+
+        The crowd is classified into:
+
+        🟢 LOW  
+        🟡 MEDIUM  
+        🔴 HIGH
+        """
+    )
+
+
+st.markdown("---")
+
+
+# =========================================================
+# AUTOMATIC THRESHOLD
+# =========================================================
+
+st.header("📐 Automatic Crowd Threshold")
+
+st.write(
+    """
+    The automatic threshold is calculated using the monitored
+    area and the defined crowd-density limit for the selected
+    type of location.
+    """
+)
+
+formula_col1, formula_col2 = st.columns(2)
+
+with formula_col1:
+
+    st.markdown(
+        """
+        ### 🧮 Calculation
+
+        **Automatic HIGH Threshold**
+
+        **Monitored Area × Density Limit**
+
+        Example:
+
+        **50 m² × 1.50 people/m² = 75 people**
+
+        Therefore:
+
+        🚨 **HIGH Threshold = 75 people**
+        """
+    )
+
+with formula_col2:
+
+    st.success(
+        """
+        ### 🤖 Automatic Setting
+
+        No manual HIGH threshold is required.
+
+        The application can calculate the threshold
+        according to the monitored location and area.
+
+        Different places can therefore have different
+        crowd limits.
+        """
+    )
+
+
+# =========================================================
+# RISK LEVELS
+# =========================================================
+
+st.header("🚨 Crowd Risk Levels")
+
+risk1, risk2, risk3 = st.columns(3)
+
+with risk1:
+
+    st.success(
+        """
+        ### 🟢 LOW
+
+        The detected crowd is within
+        the lower range of the calculated
+        threshold.
+        """
+    )
+
+with risk2:
+
+    st.warning(
+        """
+        ### 🟡 MEDIUM
+
+        The detected crowd is approaching
+        the calculated HIGH threshold.
+        """
+    )
+
+with risk3:
+
+    st.error(
+        """
+        ### 🔴 HIGH
+
+        The detected crowd reaches or
+        exceeds the calculated HIGH
+        threshold.
+
+        An alert can be generated.
+        """
+    )
+
+
+# =========================================================
+# MONITORING MODES
+# =========================================================
+
+st.header("📊 Monitoring Modes")
+
+mode1, mode2, mode3 = st.columns(3)
+
+with mode1:
+
+    st.markdown(
+        """
+        ### 📷 Image Analysis
+
+        • Upload crowd image  
+        • Detect people using AI  
+        • Count detected people  
+        • Analyze crowd risk
+        """
+    )
+
+with mode2:
+
+    st.markdown(
+        """
+        ### 🎥 Video Analysis
+
+        • Upload crowd video  
+        • Analyze video frames  
+        • Detect and count people  
+        • Analyze crowd changes
+        """
+    )
+
+with mode3:
+
+    st.markdown(
+        """
+        ### 📹 Live Camera
+
+        • Access live camera  
+        • Real-time detection  
+        • Live people counting  
+        • HIGH crowd monitoring
+        """
+    )
+
+
+st.markdown("---")
+
+
+# =========================================================
+# SMART ALERT SYSTEM
+# =========================================================
+
+st.header("🚨 Smart Alert System")
+
+alert_col1, alert_col2 = st.columns(2)
+
+with alert_col1:
+
+    st.info(
+        """
+        ### 🔔 Automatic Crowd Alert
+
+        When the detected crowd reaches the
+        HIGH threshold, the system can generate
+        an alert for the monitored situation.
+        """
+    )
+
+with alert_col2:
+
+    st.info(
+        """
+        ### 📍 Location Information
+
+        GPS and monitoring-location information
+        can be associated with the crowd alert
+        to help identify where the monitoring
+        occurred.
+        """
+    )
+
+
+# =========================================================
+# SYSTEM ARCHITECTURE
+# =========================================================
+
+st.header("🏗️ System Architecture")
+
+st.markdown(
+    """
+    <div style="
+        padding:25px;
+        margin-top:10px;
+        margin-bottom:20px;
+        border-radius:15px;
+        background:rgba(0,0,0,0.45);
+        text-align:center;
+        font-size:18px;
+        line-height:2;
+        border:1px solid rgba(255,255,255,0.2);
+    ">
+
+    📷 <b>Image / Video / Live Camera</b>
+
+    <br>↓<br>
+
+    🤖 <b>YOLO AI Detection</b>
+
+    <br>↓<br>
+
+    👥 <b>People Counting</b>
+
+    <br>↓<br>
+
+    📐 <b>Area + Crowd Density</b>
+
+    <br>↓<br>
+
+    🚨 <b>Automatic HIGH Threshold</b>
+
+    <br>↓<br>
+
+    📊 <b>Risk Analysis</b>
+
+    <br>↓<br>
+
+    🟢 <b>LOW</b>
+    &nbsp;&nbsp;&nbsp;
+    🟡 <b>MEDIUM</b>
+    &nbsp;&nbsp;&nbsp;
+    🔴 <b>HIGH</b>
+
+    <br>↓<br>
+
+    🔔 <b>Alert & Location Information</b>
+
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
 
@@ -331,15 +733,19 @@ st.header("🛠️ Technologies Used")
 tech1, tech2, tech3, tech4 = st.columns(4)
 
 with tech1:
+
     st.info("🐍 Python")
 
 with tech2:
+
     st.info("🤖 YOLO")
 
 with tech3:
+
     st.info("👁️ Computer Vision")
 
 with tech4:
+
     st.info("🌐 Streamlit")
 
 
