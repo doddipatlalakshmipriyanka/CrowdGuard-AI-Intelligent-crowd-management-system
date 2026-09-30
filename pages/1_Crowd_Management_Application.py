@@ -47,26 +47,171 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 # ============================================================
 # CONSTANTS
 # ============================================================
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("⚙️ Crowd Threshold Settings")
+st.sidebar.subheader("🤖 Automatic Crowd Threshold")
 
-crowd_threshold = st.sidebar.number_input(
-    "🚨 High Crowd Threshold",
-    min_value=1,
-    max_value=500,
-    value=20,
-    step=1,
-    help="Set the number of people above which the crowd is considered HIGH.",
+# ------------------------------------------------------------
+# PLACE SELECTION
+# ------------------------------------------------------------
+
+monitoring_place = st.sidebar.selectbox(
+    "📍 Monitoring Place",
+    [
+        "Bedroom",
+        "Living Room",
+        "Classroom",
+        "Laboratory",
+        "Corridor",
+        "College Entrance",
+        "College Hall",
+        "Auditorium",
+        "Canteen",
+        "Playground / Open Area",
+        "Bus / Transport Area",
+        "General Indoor Area",
+        "General Outdoor Area",
+    ],
+    index=2,
 )
+
+
+# ------------------------------------------------------------
+# PLACE PROFILES
+# Area = default monitored area in square meters
+# Density = maximum people per square meter
+# ------------------------------------------------------------
+
+PLACE_PROFILES = {
+
+    "Bedroom": {
+        "area": 20,
+        "density": 1.00,
+    },
+
+    "Living Room": {
+        "area": 30,
+        "density": 1.00,
+    },
+
+    "Classroom": {
+        "area": 50,
+        "density": 1.50,
+    },
+
+    "Laboratory": {
+        "area": 60,
+        "density": 1.20,
+    },
+
+    "Corridor": {
+        "area": 30,
+        "density": 1.80,
+    },
+
+    "College Entrance": {
+        "area": 50,
+        "density": 1.80,
+    },
+
+    "College Hall": {
+        "area": 100,
+        "density": 1.50,
+    },
+
+    "Auditorium": {
+        "area": 200,
+        "density": 1.20,
+    },
+
+    "Canteen": {
+        "area": 80,
+        "density": 1.30,
+    },
+
+    "Playground / Open Area": {
+        "area": 250,
+        "density": 0.80,
+    },
+
+    "Bus / Transport Area": {
+        "area": 80,
+        "density": 1.00,
+    },
+
+    "General Indoor Area": {
+        "area": 50,
+        "density": 1.40,
+    },
+
+    "General Outdoor Area": {
+        "area": 120,
+        "density": 0.80,
+    },
+}
+
+
+# ------------------------------------------------------------
+# GET SELECTED PLACE PROFILE
+# ------------------------------------------------------------
+
+place_profile = PLACE_PROFILES[monitoring_place]
+
+default_area = place_profile["area"]
+density_limit = place_profile["density"]
+
+
+# ------------------------------------------------------------
+# MONITORED AREA
+# ------------------------------------------------------------
+
+monitored_area = st.sidebar.number_input(
+    "📐 Monitored Area (m²)",
+    min_value=1.0,
+    max_value=5000.0,
+    value=float(default_area),
+    step=1.0,
+)
+
+
+# ============================================================
+# AUTOMATIC CROWD THRESHOLD
+# ============================================================
+
+crowd_threshold = int(
+    round(
+        monitored_area * density_limit
+    )
+)
+
+# Safety limits
+crowd_threshold = max(1, crowd_threshold)
+crowd_threshold = min(5000, crowd_threshold)
+
+
+# ------------------------------------------------------------
+# DISPLAY AUTOMATIC SETTINGS
+# ------------------------------------------------------------
 
 st.sidebar.info(
-    f"🚨 HIGH crowd when people ≥ {crowd_threshold}"
+    f"""
+📍 **Place:** {monitoring_place}
+
+📐 **Area:** {monitored_area:.1f} m²
+
+👥 **Density Limit:** {density_limit:.2f} people/m²
+
+🚨 **Automatic HIGH Threshold:** {crowd_threshold} people
+"""
 )
+
+
+# ============================================================
+# CAMERA SETTINGS
+# ============================================================
 
 CAMERA_CONFIDENCE = 0.25
 CAMERA_IMAGE_SIZE = 416
@@ -81,7 +226,6 @@ RECORD_DIR = Path("camera_records")
 RECORD_DIR.mkdir(exist_ok=True)
 
 IMAGE_DIR = Path("image")
-
 
 # ============================================================
 # SESSION STATE
