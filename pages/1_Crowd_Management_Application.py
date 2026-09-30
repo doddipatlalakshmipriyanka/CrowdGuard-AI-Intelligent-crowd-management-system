@@ -1495,15 +1495,11 @@ if isinstance(gps_result, dict):
 
     if "error" in gps_result:
 
-        error_info = gps_result.get(
-            "error"
-        )
+        error_info = gps_result.get("error")
 
         if isinstance(error_info, dict):
 
-            error_code = error_info.get(
-                "code"
-            )
+            error_code = error_info.get("code")
 
             error_message = error_info.get(
                 "message",
@@ -1545,42 +1541,52 @@ if isinstance(gps_result, dict):
 
         coords = gps_result["coords"]
 
-        lat = coords.get(
-            "latitude"
-        )
-
-        lon = coords.get(
-            "longitude"
-        )
-
-        accuracy = coords.get(
-            "accuracy"
-        )
+        lat = coords.get("latitude")
+        lon = coords.get("longitude")
+        accuracy = coords.get("accuracy")
 
         if lat is not None and lon is not None:
 
             lat = float(lat)
             lon = float(lon)
 
-            gps_store["latitude"] = lat
-            gps_store["longitude"] = lon
-
             if accuracy is not None:
+                accuracy = float(accuracy)
 
-                gps_store["accuracy"] = float(
-                    accuracy
+            # ------------------------------------------------
+            # CHECK GPS ACCURACY
+            # ------------------------------------------------
+
+            if accuracy is not None and accuracy > 1000:
+
+                st.warning(
+                    f"⚠️ Location is too inaccurate "
+                    f"(±{accuracy:.0f} m). "
+                    "Please enable location services "
+                    "and try again."
                 )
 
-            location_text = reverse_geocode(
-                lat,
-                lon,
-            )
-
-            if location_text:
-                gps_store["location_text"] = location_text
-            else:
+                gps_store["latitude"] = None
+                gps_store["longitude"] = None
+                gps_store["accuracy"] = accuracy
                 gps_store["location_text"] = (
-                    "Location name could not be determined"
+                    "Accurate location unavailable"
+                )
+
+            else:
+
+                gps_store["latitude"] = lat
+                gps_store["longitude"] = lon
+                gps_store["accuracy"] = accuracy
+
+                location_text = reverse_geocode(
+                    lat,
+                    lon,
+                )
+
+                gps_store["location_text"] = (
+                    location_text
+                    or "Location name could not be determined"
                 )
 # ============================================================
 # DISPLAY GPS
