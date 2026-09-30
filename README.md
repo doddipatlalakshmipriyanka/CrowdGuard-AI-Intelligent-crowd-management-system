@@ -1,4 +1,3 @@
-
 # 👥 CrowdGuard AI-Intelligent Crowd Management System
 
 ## AI-Powered Crowd Detection, Counting and Risk Analysis
@@ -82,6 +81,145 @@ The application supports location-related information, including:
 - Crowd monitoring location
 - Location information
 - Alert location information
+
+---
+
+
+---
+
+## 🤖 Automatic Crowd Analysis
+
+CrowdGuard AI supports an automatic crowd-threshold concept based on the monitored place, monitored area, and a defined crowd-density limit.
+
+Instead of requiring the user to manually enter a HIGH crowd threshold, the application can calculate the threshold automatically from the monitoring conditions.
+
+### 📍 Place-Based Monitoring
+
+The application can use different profiles for different monitoring environments, such as:
+
+- Bedroom
+- Living Room
+- Classroom
+- Laboratory
+- Corridor
+- College Entrance
+- College Hall
+- Auditorium
+- Canteen
+- Playground / Open Area
+- Bus / Transport Area
+- General Indoor Area
+- General Outdoor Area
+
+Each place profile can have a default monitored area and a project-defined crowd-density limit.
+
+### 📐 Automatic Threshold Calculation
+
+The automatic HIGH threshold is calculated as:
+
+```text
+Automatic HIGH Threshold
+        =
+Monitored Area × Density Limit
+```
+
+Example:
+
+```text
+Monitored Area = 50 m²
+Density Limit = 1.50 people/m²
+
+50 × 1.50 = 75 people
+```
+
+Therefore, the HIGH crowd threshold for this example is **75 people**.
+
+This allows different monitoring environments to use different thresholds instead of relying on one fixed threshold for every location.
+
+> **Important:** The density limits used by the project are configurable project parameters. They should be adjusted according to the actual monitoring environment and applicable safety guidance rather than being treated as universal occupancy standards.
+
+### 🧠 AI Monitoring Workflow
+
+```text
+              PLACE / AREA INFORMATION
+                         │
+                         ▼
+              📐 AUTOMATIC THRESHOLD
+                         │
+                         ▼
+          IMAGE / VIDEO / LIVE CAMERA
+                         │
+                         ▼
+                 🤖 YOLO DETECTION
+                         │
+                         ▼
+                  👥 PEOPLE COUNT
+                         │
+                         ▼
+                📊 RISK ANALYSIS
+                         │
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+             LOW       MEDIUM      HIGH
+                                    │
+                                    ▼
+                              🚨 ALERT
+                                    │
+                                    ▼
+                         📍 LOCATION INFORMATION
+```
+
+### 📊 Monitoring Modes
+
+The system supports three main monitoring modes:
+
+#### 📷 Image Analysis
+
+- Upload a crowd image
+- Detect people using YOLO
+- Count detected people
+- Compare the count with the calculated threshold
+- Display the crowd-risk level
+
+#### 🎥 Video Analysis
+
+- Upload a crowd video
+- Analyze video frames
+- Detect and count people
+- Monitor changes in crowd conditions
+- Identify high-crowd conditions
+
+#### 📹 Live Camera Monitoring
+
+- Access a live camera
+- Perform real-time person detection
+- Count people continuously
+- Compare the live count with the automatic threshold
+- Monitor HIGH crowd conditions
+
+### 🚨 Risk Analysis
+
+The system classifies crowd conditions into:
+
+- 🟢 **LOW** — crowd is within the lower range
+- 🟡 **MEDIUM** — crowd is approaching the HIGH threshold
+- 🔴 **HIGH** — detected crowd reaches or exceeds the calculated HIGH threshold
+
+When a HIGH crowd condition is identified, the application can generate a crowd alert.
+
+### 🔔 Smart Alert and Location Support
+
+When enabled, the application can associate crowd alerts with available monitoring-location information.
+
+The system can use:
+
+- GPS location support
+- Monitoring location information
+- Crowd count
+- Risk level
+- Alert information
+
+This helps provide context about where a high-crowd condition was detected.
 
 ---
 
