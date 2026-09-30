@@ -678,6 +678,7 @@ def send_high_crowd_alert_once(
 
 
 def reverse_geocode(latitude, longitude):
+
     try:
         url = "https://nominatim.openstreetmap.org/reverse"
 
@@ -687,67 +688,60 @@ def reverse_geocode(latitude, longitude):
             "format": "jsonv2",
             "zoom": 18,
             "addressdetails": 1,
-            "accept-language": "en",
+            "accept-language": "en"
         }
 
         headers = {
-            "User-Agent": "CrowdGuardAI/1.0"
+            "User-Agent": "CrowdGurdAI/1.0"
         }
 
         response = requests.get(
             url,
             params=params,
             headers=headers,
-            timeout=15,
+            timeout=10
         )
-
-        print("Nominatim status:", response.status_code)
 
         if response.status_code != 200:
-            return "Location name unavailable"
+            return "Location name could not be determined"
 
         data = response.json()
+
+        # First try the complete readable address
+        location = data.get("display_name")
+
+        if location:
+            return location
+
+        # Otherwise construct a readable location
         address = data.get("address", {})
 
-        # Get the most useful place name
-        place = (
-            address.get("village")
-            or address.get("town")
-            or address.get("city")
-            or address.get("municipality")
-            or address.get("suburb")
-            or address.get("neighbourhood")
-        )
-
-        district = (
-            address.get("state_district")
-            or address.get("district")
-            or address.get("county")
-        )
-
-        state = address.get("state")
-
-        # Build readable location
         parts = []
 
-        for value in [place, district, state]:
+        for key in [
+            "amenity",
+            "building",
+            "road",
+            "village",
+            "town",
+            "city",
+            "state"
+        ]:
+            value = address.get(key)
+
             if value and value not in parts:
                 parts.append(value)
 
         if parts:
             return ", ".join(parts)
 
-        # Last fallback
-        display_name = data.get("display_name")
-
-        if display_name:
-            return display_name
-
-        return "Location name unavailable"
+        return "Location name could not be determined"
 
     except Exception as e:
-        print("Reverse geocoding error:", type(e).__name__, str(e))
-        return "Location name unavailable"
+
+        print("Reverse geocoding error:", e)
+
+        return "Location name could not be determined"
 # ============================================================
 # CAMERA FRAME CALLBACK
 # ============================================================
